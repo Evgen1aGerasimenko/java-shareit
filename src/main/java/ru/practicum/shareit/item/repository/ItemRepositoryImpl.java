@@ -59,6 +59,7 @@ public class ItemRepositoryImpl implements ItemRepository {
                 foundedItems.add(item);
             }
         }
+
         return foundedItems;
     }
 }
