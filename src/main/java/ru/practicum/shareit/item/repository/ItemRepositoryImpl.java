@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.repository;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,17 +48,20 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public List<Item> searchItemByNameOrDescription(String text) {
-        List<Item> itemList = new ArrayList<>(items.values());
-        List<Item> foundedItems = new ArrayList<>();
-        for (Item item : itemList) {
-            if ((item.getName().toLowerCase().contains(text.toLowerCase()) ||
-                    item.getDescription().toLowerCase().contains(text.toLowerCase())) &&
-                    item.getAvailable() &&
-                    !text.isEmpty()) {
-                foundedItems.add(item);
-            }
-        }
-
-        return foundedItems;
+        return items.values().stream()
+                .filter(item -> (item.getName().toLowerCase().contains(text.toLowerCase()) ||
+                        item.getDescription().toLowerCase().contains(text.toLowerCase())) &&
+                        item.getAvailable() &&
+                        !text.isEmpty())
+                .map(item -> {
+                    return new Item(
+                            item.getId(),
+                            item.getName(),
+                            item.getDescription(),
+                            item.getAvailable(),
+                            item.getOwner()
+                    );
+                })
+                .collect(Collectors.toList());
     }
 }

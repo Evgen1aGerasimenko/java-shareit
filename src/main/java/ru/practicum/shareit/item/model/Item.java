@@ -4,14 +4,12 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 /**
  * TODO Sprint add-controllers.
  */
 @Data
 @AllArgsConstructor
-@RequiredArgsConstructor
 public class Item {
     private Long id;
     @NotEmpty
