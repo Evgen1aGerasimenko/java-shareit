@@ -53,15 +53,13 @@ public class ItemRepositoryImpl implements ItemRepository {
                         item.getDescription().toLowerCase().contains(text.toLowerCase())) &&
                         item.getAvailable() &&
                         !text.isEmpty())
-                .map(item -> {
-                    return new Item(
-                            item.getId(),
-                            item.getName(),
-                            item.getDescription(),
-                            item.getAvailable(),
-                            item.getOwner()
-                    );
-                })
+                .map(item -> new Item(
+                        item.getId(),
+                        item.getName(),
+                        item.getDescription(),
+                        item.getAvailable(),
+                        item.getOwner()
+                ))
                 .collect(Collectors.toList());
     }
 }
