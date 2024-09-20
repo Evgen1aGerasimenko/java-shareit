@@ -4,6 +4,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentCreateDto;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.ItemCompleteDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -22,27 +26,33 @@ public class ItemController {
     private final String header = "X-Sharer-User-Id";
 
     @PostMapping
-    public Item postItem(@RequestHeader(header) Long userId, @Valid @RequestBody Item item) {
+    public ItemDto postItem(@RequestHeader(header) Long userId, @Valid @RequestBody ItemDto item) {
         return itemService.postItem(userId, item);
     }
 
     @PatchMapping("/{itemId}")
-    public Item updateItem(@RequestHeader(header) Long userId, @PathVariable Long itemId, @RequestBody Item item) {
+    public ItemDto updateItem(@RequestHeader(header) Long userId, @PathVariable Long itemId, @RequestBody ItemDto item) {
         return itemService.updateItem(userId, itemId, item);
     }
 
     @GetMapping("/{itemId}")
-    public Item getItemById(@PathVariable Long itemId) {
+    public ItemCompleteDto getItemById(@PathVariable Long itemId) {
         return itemService.getItemById(itemId);
     }
 
     @GetMapping
-    public List<Item> getOwnersItems(@RequestHeader(header) Long userId) {
+    public List<ItemCompleteDto> getOwnersItems(@RequestHeader(header) Long userId) {
         return itemService.getOwnersItems(userId);
     }
 
     @GetMapping("/search")
     public List<Item> searchItemByNameOrDescription(@RequestParam("text") String text) {
         return itemService.searchItemByNameOrDescription(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@RequestHeader(header) Long userId,
+                                 @PathVariable Long itemId, @Valid @RequestBody CommentCreateDto commentCreateDto) {
+        return itemService.postComment(userId, itemId, commentCreateDto);
     }
 }
