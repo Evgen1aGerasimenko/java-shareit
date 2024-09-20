@@ -59,13 +59,13 @@ public class ItemServiceImpl implements ItemService {
         if (!updatedItem.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Попытка обновления вещи другого пользователя");
         }
-        if(item.getName() != null) {
+        if (item.getName() != null) {
             updatedItem.setName(item.getName());
         }
-        if(item.getDescription() != null) {
+        if (item.getDescription() != null) {
             updatedItem.setDescription(item.getDescription());
         }
-        if(item.getAvailable() != null) {
+        if (item.getAvailable() != null) {
             updatedItem.setAvailable(item.getAvailable());
         }
         return ItemMapper.toItemDto(jpaItemRepository.save(updatedItem));
@@ -116,7 +116,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> searchItemByNameOrDescription(String text) {
-        if(text.isEmpty()) {
+        if (text.isEmpty()) {
             return new ArrayList<>();
         }
         return jpaItemRepository.searchItem(text);
@@ -129,7 +129,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = jpaItemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Вещь с указанным ид не найдена"));
         List<Booking> bookings = jpaBookingRepository.findAllByBooker_IdAndItem_IdAndStatusAndEndBefore(userId, itemId, Status.APPROVED, LocalDateTime.now());
-        if(bookings.isEmpty()){
+        if (bookings.isEmpty()) {
             throw new BadRequestException("Вещь не была в бронировании у пользователея");
         }
         Comment comment = CommentMapper.toComment(commentCreateDto);
