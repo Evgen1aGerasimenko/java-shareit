@@ -23,9 +23,9 @@ public class BookingController {
     private final String header = "X-Sharer-User-Id";
 
     @PostMapping
-    public BookingDto postBooking(@RequestHeader(header) Long userId,
+    public BookingDto createBooking(@RequestHeader(header) Long userId,
                                   @Valid @RequestBody CreateBookingDto createBookingDto) {
-        return bookingService.postBooking(userId, createBookingDto);
+        return bookingService.createBooking(userId, createBookingDto);
     }
 
     @GetMapping("/{bookingId}")

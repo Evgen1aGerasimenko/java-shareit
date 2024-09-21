@@ -17,7 +17,6 @@ import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.JpaItemRepository;
-import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -35,7 +34,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public BookingDto postBooking(Long userId, CreateBookingDto createBookingDto) {
+    public BookingDto createBooking(Long userId, CreateBookingDto createBookingDto) {
         UserDto userDto = userService.getUserById(userId);
         long idOfItem = createBookingDto.getItemId();
         Item item = jpaItemRepository.findById(idOfItem)
@@ -45,23 +44,21 @@ public class BookingServiceImpl implements BookingService {
         if (!itemDto.getAvailable()) {
             throw new BadRequestException("Вещь не доступна для бронирования");
         }
-        Booking booking = BookingMapper.toBooking(createBookingDto);
-        booking.setBooker(UserMapper.toUser(userDto));
-        booking.setItem(ItemMapper.toItem(itemDto));
-        booking.setStatus(Status.WAITING);
+        Booking booking = BookingMapper.toBooking(createBookingDto, itemDto, userDto, Status.WAITING);
         return BookingMapper.toBookingDto(bookingRepository.save(booking));
     }
 
     @Override
     public BookingDto getBookingById(Long userId, Long bookingId) {
-        if (bookingRepository.getById(bookingId) == null) {
+        Booking booking = bookingRepository.getById(bookingId);
+        if (booking == null) {
             throw new NotFoundException("Бронирование не найдено");
         }
-        if (!bookingRepository.getById(bookingId).getItem().getOwner().getId().equals(userId) &&
-                !bookingRepository.getById(bookingId).getBooker().getId().equals(userId)) {
+        if (!booking.getItem().getOwner().getId().equals(userId) && !booking.getBooker().getId().equals(userId)) {
             throw new ForbiddenException("Пользователь не является влвдельцем вещи");
         }
-        return BookingMapper.toBookingDto(bookingRepository.getById(bookingId));
+
+        return BookingMapper.toBookingDto(booking);
     }
 
     @Transactional
@@ -78,7 +75,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getAllBookings(Long userId, State state) {
-        userService.getUserById(userId);
+        checkIfUserExists(userId);
         List<Booking> bookings;
 
         switch (state) {
@@ -100,7 +97,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<BookingDto> getAllBookingsByOwner(Long userId, State state) {
-        userService.getUserById(userId);
+        checkIfUserExists(userId);
         List<Booking> bookings;
 
         switch (state) {
@@ -118,5 +115,9 @@ public class BookingServiceImpl implements BookingService {
         return bookings.stream()
                 .map(BookingMapper::toBookingDto)
                 .collect(Collectors.toList());
+    }
+
+    private void checkIfUserExists(Long id) {
+        userService.getUserById(id);
     }
 }

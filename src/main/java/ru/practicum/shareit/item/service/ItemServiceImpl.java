@@ -42,7 +42,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional
     @Override
-    public ItemDto postItem(Long userId, ItemDto item) {
+    public ItemDto createItem(Long userId, ItemDto item) {
         jpaUserRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         User us = UserMapper.toUser(userService.getUserById(userId));
