@@ -4,13 +4,14 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import ru.practicum.shareit.booking.dto.BookingDto;
 
-/**
- * TODO Sprint add-controllers.
- */
+import java.util.List;
+
 @Data
 @AllArgsConstructor
-public class ItemDto {
+public class ItemCompleteDto {
+
     private Long id;
     @NotEmpty
     private String name;
@@ -18,4 +19,8 @@ public class ItemDto {
     private String description;
     @NotNull
     private Boolean available;
+    private BookingDto lastBooking;
+    private BookingDto nextBooking;
+    private List<CommentDto> comments;
 }
+

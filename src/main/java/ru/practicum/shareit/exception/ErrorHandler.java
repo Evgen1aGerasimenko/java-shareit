@@ -25,4 +25,22 @@ public class ErrorHandler {
                 e.getMessage()
         );
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse badRequest(final BadRequestException e) {
+        return new ErrorResponse(
+                "Ошибка запроса",
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse forbiddenRequest(final ForbiddenException e) {
+        return new ErrorResponse(
+                "Ошибка запроса",
+                e.getMessage()
+        );
+    }
 }
