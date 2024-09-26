@@ -18,6 +18,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.JpaItemRepository;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.repository.JpaUserRepository;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
@@ -35,6 +36,7 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     @Override
     public BookingDto createBooking(Long userId, CreateBookingDto createBookingDto) {
+        checkIfUserExists(userId);
         UserDto userDto = userService.getUserById(userId);
         long idOfItem = createBookingDto.getItemId();
         Item item = jpaItemRepository.findById(idOfItem)

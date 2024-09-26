@@ -20,6 +20,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.JpaCommentRepository;
 import ru.practicum.shareit.item.repository.JpaItemRepository;
+import ru.practicum.shareit.request.ItemRequest;
+import ru.practicum.shareit.request.repository.JpaItemRequestRepository;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.JpaUserRepository;
@@ -39,6 +41,7 @@ public class ItemServiceImpl implements ItemService {
     private final JpaUserRepository jpaUserRepository;
     private final JpaCommentRepository jpaCommentRepository;
     private final JpaBookingRepository jpaBookingRepository;
+    private final JpaItemRequestRepository jpaItemRequestRepository;
 
     @Transactional
     @Override
@@ -48,6 +51,12 @@ public class ItemServiceImpl implements ItemService {
         User us = UserMapper.toUser(userService.getUserById(userId));
         Item dtoToModelOfItem = ItemMapper.toItem(item);
         dtoToModelOfItem.setOwner(us);
+        Long requestId = item.getRequestId();
+        if (requestId != null) {
+            ItemRequest request = jpaItemRequestRepository.findById(requestId)
+                    .orElseThrow(() -> new NotFoundException("Запрос не найден"));
+            dtoToModelOfItem.setRequest(request);
+        }
         return ItemMapper.toItemDto(jpaItemRepository.save(dtoToModelOfItem));
     }
 
