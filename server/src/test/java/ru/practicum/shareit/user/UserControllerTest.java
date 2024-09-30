@@ -41,6 +41,7 @@ public class UserControllerTest {
     public void setUp() {
         this.mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
     }
+
     @Test
     void createUser_ShouldReturnCreatedUser_AndCheckResponseStatusss() throws Exception {
         UserDto userDto = new UserDto(1L, "mike", "mike@ya.ru");
