@@ -148,13 +148,51 @@ public class BookingServiceTest {
     }
 
     @Test
+    void bookingApproving_whenUserIsOwnerAndApproved_thenStatusUpdatedToApproved() {
+        Long userId = owner.getId();
+        booking.setStatus(Status.WAITING);
+
+        when(bookingRepository.getById(booking.getId())).thenReturn(booking);
+        when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        BookingDto result = bookingService.bookingApproving(userId, booking.getId(), true);
+
+        assertNotNull(result);
+        assertEquals(Status.APPROVED, result.getStatus());
+    }
+
+    @Test
+    void bookingApproving_whenUserIsOwnerAndNotApproved_thenStatusUpdatedToRejected() {
+        Long userId = owner.getId();
+        booking.setStatus(Status.WAITING);
+
+        when(bookingRepository.getById(booking.getId())).thenReturn(booking);
+        when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> {
+            Booking savedBooking = invocation.getArgument(0);
+            return savedBooking;
+        });
+        BookingDto result = bookingService.bookingApproving(userId, booking.getId(), false);
+        assertNotNull(result);
+        assertEquals(Status.REJECTED, result.getStatus());
+    }
+
+    @Test
+    void bookingApproving_whenBookingDoesNotExist_thenThrowNotFoundException() {
+        Long nonExistentBookingId = 999L;
+        Long userId = owner.getId();
+
+        when(bookingRepository.getById(nonExistentBookingId)).thenThrow(new NotFoundException("Booking not found"));
+
+        assertThrows(NotFoundException.class, () -> bookingService.bookingApproving(userId, nonExistentBookingId, true));
+    }
+
+    @Test
     void bookingApproving_whenUserIsNotOwner_thenThrowForbiddenException() {
         Long userId = 2L;
         when(bookingRepository.getById(3L)).thenReturn(booking);
 
         assertThrows(ForbiddenException.class, () -> bookingService.bookingApproving(userId, 3L, true));
     }
-
 
     @Test
     void getAllBookings_whenUserExistsAndStateIsAll_thenReturnAllBookings() {
