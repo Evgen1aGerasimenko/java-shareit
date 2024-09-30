@@ -84,7 +84,7 @@ public class ItemControllerTest {
         Long userId = 1L;
         Long itemId = 1L;
         ItemDto updatedItemDto = new ItemDto(itemId, "item_name_updated", "item_description_updated",
-                true, 1l);
+                true, 1L);
 
         when(itemService.updateItem(eq(userId), eq(itemId), any(ItemDto.class))).thenReturn(updatedItemDto);
 

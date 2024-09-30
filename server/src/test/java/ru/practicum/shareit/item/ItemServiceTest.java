@@ -279,7 +279,7 @@ public class ItemServiceTest {
     void postComment_ShouldReturnCommentDto_WhenBookingExists() {
         LocalDateTime fixedNow = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 
-        when(userService.getUserById(1L)).thenReturn(new UserDto(1l, "name", "T@YA.RU"));
+        when(userService.getUserById(1L)).thenReturn(new UserDto(1L, "name", "T@YA.RU"));
         when(jpaItemRepository.findById(1L)).thenReturn(Optional.of(item));
         when(jpaBookingRepository.findAllByBooker_IdAndItem_IdAndStatusAndEndBefore(
                 1L, 1L, Status.APPROVED, fixedNow))
