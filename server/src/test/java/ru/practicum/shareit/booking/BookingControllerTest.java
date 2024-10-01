@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.model.Item;
@@ -116,14 +117,14 @@ public class BookingControllerTest {
         List<BookingDto> bookings = Collections.singletonList(new BookingDto(1L, LocalDateTime.now(),
                 LocalDateTime.now().plusDays(1), item, user, Status.APPROVED));
 
-        when(bookingService.getAllBookings(eq(userId), any(State.class))).thenReturn(bookings);
+        when(bookingService.getAllBookings(eq(userId), any(BookingState.class))).thenReturn(bookings);
 
         mockMvc.perform(get("/bookings")
                         .header("X-Sharer-User-Id", userId)
                         .param("state", "ALL"))
                 .andExpect(status().isOk());
 
-        verify(bookingService).getAllBookings(eq(userId), any(State.class));
+        verify(bookingService).getAllBookings(eq(userId), any(BookingState.class));
     }
 
     @Test
@@ -132,13 +133,13 @@ public class BookingControllerTest {
         List<BookingDto> bookings = Collections.singletonList(new BookingDto(1L, LocalDateTime.now(),
                 LocalDateTime.now().plusDays(1), item, user, Status.APPROVED));
 
-        when(bookingService.getAllBookingsByOwner(eq(userId), any(State.class))).thenReturn(bookings);
+        when(bookingService.getAllBookingsByOwner(eq(userId), any(BookingState.class))).thenReturn(bookings);
 
         mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", userId)
                         .param("state", "ALL"))
                 .andExpect(status().isOk());
 
-        verify(bookingService).getAllBookingsByOwner(eq(userId), any(State.class));
+        verify(bookingService).getAllBookingsByOwner(eq(userId), any(BookingState.class));
     }
 }

@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
 import ru.practicum.shareit.booking.repository.JpaBookingRepository;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
@@ -22,7 +23,6 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -202,7 +202,7 @@ public class BookingServiceTest {
         when(bookingRepository.findAllBookingsByBooker_IdOrderByStartDesc(userId))
                 .thenReturn(List.of(approvedBooking, notapprovedBooking));
 
-        List<BookingDto> actualBookings = bookingService.getAllBookings(userId, State.ALL);
+        List<BookingDto> actualBookings = bookingService.getAllBookings(userId, BookingState.ALL);
 
         assertEquals(2, actualBookings.size());
         assertTrue(actualBookings.stream().anyMatch(b -> b.getId().equals(approvedBooking.getId())));
@@ -216,7 +216,7 @@ public class BookingServiceTest {
         when(bookingRepository.findAllBookingsByBooker_IdAndStatus(userId, Status.APPROVED))
                 .thenReturn(List.of(approvedBooking));
 
-        List<BookingDto> actualBookings = bookingService.getAllBookings(userId, State.CURRENT);
+        List<BookingDto> actualBookings = bookingService.getAllBookings(userId, BookingState.CURRENT);
 
         assertEquals(1, actualBookings.size());
         assertEquals(approvedBooking.getId(), actualBookings.get(0).getId());
@@ -229,7 +229,7 @@ public class BookingServiceTest {
         when(bookingRepository.findBookingsByBooker_IdAndStatus(userId, Status.REJECTED))
                 .thenReturn(List.of(approvedBooking));
 
-        List<BookingDto> actualBookings = bookingService.getAllBookings(userId, State.REJECTED);
+        List<BookingDto> actualBookings = bookingService.getAllBookings(userId, BookingState.REJECTED);
 
         assertEquals(1, actualBookings.size());
         assertEquals(approvedBooking.getId(), actualBookings.get(0).getId());
@@ -242,7 +242,7 @@ public class BookingServiceTest {
         when(bookingRepository.findAllBookingsByItemOwnerOrderByStartDesc(userId))
                 .thenReturn(List.of(approvedBooking, notapprovedBooking));
 
-        List<BookingDto> actualBookings = bookingService.getAllBookingsByOwner(userId, State.ALL);
+        List<BookingDto> actualBookings = bookingService.getAllBookingsByOwner(userId, BookingState.ALL);
 
         assertEquals(2, actualBookings.size());
         assertTrue(actualBookings.stream().anyMatch(b -> b.getId().equals(approvedBooking.getId())));
@@ -256,7 +256,7 @@ public class BookingServiceTest {
         when(bookingRepository.findAllBookingsByItemOwnerAndStatus(userId, Status.APPROVED))
                 .thenReturn(List.of(approvedBooking));
 
-        List<BookingDto> actualBookings = bookingService.getAllBookingsByOwner(userId, State.CURRENT);
+        List<BookingDto> actualBookings = bookingService.getAllBookingsByOwner(userId, BookingState.CURRENT);
 
         assertEquals(1, actualBookings.size());
         assertEquals(approvedBooking.getId(), actualBookings.get(0).getId());
@@ -269,7 +269,7 @@ public class BookingServiceTest {
         when(bookingRepository.findBookingsByItemOwnerAndStatus(userId, Status.REJECTED))
                 .thenReturn(List.of(notapprovedBooking));
 
-        List<BookingDto> actualBookings = bookingService.getAllBookingsByOwner(userId, State.REJECTED);
+        List<BookingDto> actualBookings = bookingService.getAllBookingsByOwner(userId, BookingState.REJECTED);
 
         assertEquals(1, actualBookings.size());
         assertEquals(notapprovedBooking.getId(), actualBookings.get(0).getId());
@@ -283,7 +283,7 @@ public class BookingServiceTest {
                 userId, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)))
                 .thenReturn(List.of(notapprovedBooking));
 
-        List<BookingDto> actualBookings = bookingService.getAllBookingsByOwner(userId, State.PAST);
+        List<BookingDto> actualBookings = bookingService.getAllBookingsByOwner(userId, BookingState.PAST);
 
         assertEquals(1, actualBookings.size());
         assertEquals(notapprovedBooking.getId(), actualBookings.get(0).getId());
@@ -297,7 +297,7 @@ public class BookingServiceTest {
                 userId, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)))
                 .thenReturn(List.of(approvedBooking));
 
-        List<BookingDto> actualBookings = bookingService.getAllBookingsByOwner(userId, State.FUTURE);
+        List<BookingDto> actualBookings = bookingService.getAllBookingsByOwner(userId, BookingState.FUTURE);
 
         assertEquals(1, actualBookings.size());
         assertEquals(approvedBooking.getId(), actualBookings.get(0).getId());
@@ -310,7 +310,7 @@ public class BookingServiceTest {
         when(bookingRepository.findBookingsByItemOwnerAndStatus(1L, Status.WAITING))
                 .thenReturn(List.of(booking));
 
-        List<BookingDto> actualBookings = bookingService.getAllBookingsByOwner(1L, State.WAITING);
+        List<BookingDto> actualBookings = bookingService.getAllBookingsByOwner(1L, BookingState.WAITING);
 
         assertEquals(1, actualBookings.size());
         assertEquals(booking.getId(), actualBookings.get(0).getId());

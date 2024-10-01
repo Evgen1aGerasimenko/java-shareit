@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Booking;
 import ru.practicum.shareit.booking.BookingMapper;
-import ru.practicum.shareit.booking.State;
+import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
@@ -76,11 +76,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllBookings(Long userId, State state) {
+    public List<BookingDto> getAllBookings(Long userId, BookingState bookingState) {
         checkIfUserExists(userId);
         List<Booking> bookings;
 
-        switch (state) {
+        switch (bookingState) {
             case ALL -> bookings = bookingRepository.findAllBookingsByBooker_IdOrderByStartDesc(userId);
             case CURRENT -> bookings = bookingRepository.findAllBookingsByBooker_IdAndStatus(userId, Status.APPROVED);
             case PAST -> bookings = bookingRepository.findAllBookingsByBooker_IdAndEndIsBeforeOrderByStartDesc(userId,
@@ -99,11 +99,11 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllBookingsByOwner(Long userId, State state) {
+    public List<BookingDto> getAllBookingsByOwner(Long userId, BookingState bookingState) {
         checkIfUserExists(userId);
         List<Booking> bookings;
 
-        switch (state) {
+        switch (bookingState) {
             case ALL -> bookings = bookingRepository.findAllBookingsByItemOwnerOrderByStartDesc(userId);
             case CURRENT -> bookings = bookingRepository.findAllBookingsByItemOwnerAndStatus(userId, Status.APPROVED);
             case PAST -> bookings = bookingRepository.findAllBookingsByItemOwnerAndEndIsBeforeOrderByStartDesc(userId,
