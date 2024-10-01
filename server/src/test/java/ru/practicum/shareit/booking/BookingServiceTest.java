@@ -170,13 +170,13 @@ public class BookingServiceTest {
     @Test
     void getBookingById_whenBookingExistsAndIsOwner_thenReturnBookingDto() {
         Long userId = 1L;
-        when(bookingRepository.getById(3L)).thenReturn(booking);
+        when(bookingRepository.getById(1L)).thenReturn(booking);
 
-        BookingDto actualBookingDto = bookingService.getBookingById(userId, 3L);
+        BookingDto actualBookingDto = bookingService.getBookingById(userId, 1L);
 
         assertNotNull(actualBookingDto);
-        assertEquals(3L, actualBookingDto.getId());
-        verify(bookingRepository, times(1)).getById(3L);
+        assertEquals(1L, actualBookingDto.getId());
+        verify(bookingRepository, times(1)).getById(1L);
     }
 
     @Test
