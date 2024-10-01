@@ -23,6 +23,8 @@ import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,6 +55,10 @@ public class BookingServiceTest {
     private Booking booking;
     private Booking approvedBooking;
     private Booking notapprovedBooking;
+    private Booking lastBooking;
+    private Booking nextBooking;
+    private Booking pastBooking;
+    private Booking futureBooking;
 
     @BeforeEach
     void setUp() {
@@ -91,6 +97,47 @@ public class BookingServiceTest {
         notapprovedBooking.setStatus(Status.REJECTED);
         notapprovedBooking.setStart(LocalDateTime.now().plusDays(1));
         notapprovedBooking.setEnd(LocalDateTime.now().plusDays(2));
+
+
+        booking = new Booking();
+        booking.setId(1L);
+        booking.setItem(item);
+        booking.setBooker(user);
+        booking.setStatus(Status.APPROVED);
+        booking.setStart(LocalDateTime.now().minusDays(1L));
+        booking.setEnd(LocalDateTime.now().plusDays(1L));
+
+        lastBooking = new Booking();
+        lastBooking.setId(2L);
+        lastBooking.setItem(item);
+        lastBooking.setBooker(user);
+        lastBooking.setStatus(Status.APPROVED);
+        lastBooking.setStart(LocalDateTime.now().minusDays(2L));
+        lastBooking.setEnd(LocalDateTime.now().minusDays(1L));
+
+        pastBooking = new Booking();
+        pastBooking.setId(3L);
+        pastBooking.setItem(item);
+        pastBooking.setBooker(user);
+        pastBooking.setStatus(Status.APPROVED);
+        pastBooking.setStart(LocalDateTime.now().minusDays(1L));
+        pastBooking.setEnd(LocalDateTime.now().minusDays(1L));
+
+        nextBooking = new Booking();
+        nextBooking.setId(4L);
+        nextBooking.setItem(item);
+        nextBooking.setBooker(user);
+        nextBooking.setStatus(Status.APPROVED);
+        nextBooking.setStart(LocalDateTime.now().plusDays(1L));
+        nextBooking.setEnd(LocalDateTime.now().plusDays(2L));
+
+        futureBooking = new Booking();
+        futureBooking.setId(5L);
+        futureBooking.setItem(item);
+        futureBooking.setBooker(user);
+        futureBooking.setStatus(Status.APPROVED);
+        futureBooking.setStart(LocalDateTime.now().plusDays(1L));
+        futureBooking.setEnd(LocalDateTime.now().plusDays(2L));
     }
 
     @Test
@@ -234,6 +281,89 @@ public class BookingServiceTest {
         assertEquals(1, actualBookings.size());
         assertEquals(approvedBooking.getId(), actualBookings.get(0).getId());
     }
+
+    @Test
+    void getAllBookings_ShouldReturnAllBookings_WhenStateIsAll() {
+        Long userId = user.getId();
+        when(bookingRepository.findAllBookingsByBooker_IdOrderByStartDesc(userId))
+                .thenReturn(Arrays.asList(nextBooking));
+        when(userService.getUserById(userId)).thenReturn(userDto);
+
+        List<BookingDto> result = bookingService.getAllBookings(userId, BookingState.ALL);
+
+        assertEquals(1, result.size());
+        verify(bookingRepository).findAllBookingsByBooker_IdOrderByStartDesc(userId);
+    }
+
+    @Test
+    void getAllBookings_ShouldReturnCurrentBookings_WhenStateIsCurrent() {
+        Long userId = user.getId();
+        when(bookingRepository.findAllBookingsByBooker_IdAndStatus(userId, Status.APPROVED))
+                .thenReturn(Collections.singletonList(approvedBooking));
+        when(userService.getUserById(userId)).thenReturn(userDto);
+
+        List<BookingDto> result = bookingService.getAllBookings(userId, BookingState.CURRENT);
+
+        assertEquals(1, result.size());
+        verify(bookingRepository).findAllBookingsByBooker_IdAndStatus(userId, Status.APPROVED);
+    }
+
+    @Test
+    void getAllBookings_ShouldReturnPastBookings_WhenStateIsPast() {
+        Long userId = user.getId();
+        when(bookingRepository.findAllBookingsByBooker_IdAndEndIsBeforeOrderByStartDesc(userId,
+                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)))
+                .thenReturn(Collections.singletonList(pastBooking));
+        when(userService.getUserById(userId)).thenReturn(userDto);
+
+        List<BookingDto> result = bookingService.getAllBookings(userId, BookingState.PAST);
+
+        assertEquals(1, result.size());
+        verify(bookingRepository).findAllBookingsByBooker_IdAndEndIsBeforeOrderByStartDesc(userId,
+                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+    }
+
+    @Test
+    void getAllBookings_ShouldReturnFutureBookings_WhenStateIsFuture() {
+        Long userId = user.getId();
+        when(bookingRepository.findAllBookingsByBooker_IdAndStartIsAfterOrderByStartDesc(userId,
+                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS)))
+                .thenReturn(Collections.singletonList(futureBooking));
+        when(userService.getUserById(userId)).thenReturn(userDto);
+
+        List<BookingDto> result = bookingService.getAllBookings(userId, BookingState.FUTURE);
+
+        assertEquals(1, result.size());
+        verify(bookingRepository).findAllBookingsByBooker_IdAndStartIsAfterOrderByStartDesc(userId,
+                LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+    }
+
+    @Test
+    void getAllBookings_ShouldReturnWaitingBookings_WhenStateIsWaiting() {
+        Long userId = user.getId();
+        when(bookingRepository.findBookingsByBooker_IdAndStatus(userId, Status.WAITING))
+                .thenReturn(Collections.emptyList());
+        when(userService.getUserById(userId)).thenReturn(userDto);
+
+        List<BookingDto> result = bookingService.getAllBookings(userId, BookingState.WAITING);
+
+        assertTrue(result.isEmpty());
+        verify(bookingRepository).findBookingsByBooker_IdAndStatus(userId, Status.WAITING);
+    }
+
+    @Test
+    void getAllBookings_ShouldReturnRejectedBookings_WhenStateIsRejected() {
+        Long userId = user.getId();
+        when(bookingRepository.findBookingsByBooker_IdAndStatus(userId, Status.REJECTED))
+                .thenReturn(Collections.emptyList());
+        when(userService.getUserById(userId)).thenReturn(userDto);
+
+        List<BookingDto> result = bookingService.getAllBookings(userId, BookingState.REJECTED);
+
+        assertTrue(result.isEmpty());
+        verify(bookingRepository).findBookingsByBooker_IdAndStatus(userId, Status.REJECTED);
+    }
+
 
     @Test
     void getAllBookingsByOwner_whenUserExistsAndStateIsAll_thenReturnAllBookings() {

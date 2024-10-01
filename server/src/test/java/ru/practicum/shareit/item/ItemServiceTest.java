@@ -64,9 +64,7 @@ public class ItemServiceTest {
     private Comment comment;
     private Booking booking;
     private Booking lastBooking;
-    private Booking pastBooking;
     private Booking nextBooking;
-    private Booking futureBooking;
 
     @BeforeEach
     void setUp() {
@@ -133,14 +131,6 @@ public class ItemServiceTest {
         lastBooking.setStart(LocalDateTime.now().minusDays(2L));
         lastBooking.setEnd(LocalDateTime.now().minusDays(1L));
 
-        pastBooking = new Booking();
-        pastBooking.setId(3L);
-        pastBooking.setItem(item);
-        pastBooking.setBooker(user);
-        pastBooking.setStatus(Status.APPROVED);
-        pastBooking.setStart(LocalDateTime.now().minusDays(1L));
-        pastBooking.setEnd(LocalDateTime.now().minusDays(1L));
-
         nextBooking = new Booking();
         nextBooking.setId(4L);
         nextBooking.setItem(item);
@@ -149,13 +139,6 @@ public class ItemServiceTest {
         nextBooking.setStart(LocalDateTime.now().plusDays(1L));
         nextBooking.setEnd(LocalDateTime.now().plusDays(2L));
 
-        futureBooking = new Booking();
-        futureBooking.setId(5L);
-        futureBooking.setItem(item);
-        futureBooking.setBooker(user);
-        futureBooking.setStatus(Status.APPROVED);
-        futureBooking.setStart(LocalDateTime.now().plusDays(1L));
-        futureBooking.setEnd(LocalDateTime.now().plusDays(2L));
     }
 
     @Test
@@ -183,6 +166,36 @@ public class ItemServiceTest {
         });
         assertEquals("Пользователь не найден", exception.getMessage());
     }
+
+    @Test
+    void updateItem_ShouldReturnUpdatedItemDto_WhenValidInput() {
+        when(jpaItemRepository.findById(1L)).thenReturn(Optional.of(item));
+        when(jpaItemRepository.save(any(Item.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ItemDto updatedItemDto = itemService.updateItem(1L, 1L, itemDtoUpdate);
+
+        assertNotNull(updatedItemDto);
+        assertEquals(itemDtoUpdate.getName(), updatedItemDto.getName());
+        assertEquals(itemDtoUpdate.getDescription(), updatedItemDto.getDescription());
+        assertFalse(updatedItemDto.getAvailable());
+        verify(jpaItemRepository).findById(1L);
+        verify(jpaItemRepository).save(any(Item.class));
+    }
+
+    @Test
+    void updateItem_ShouldThrowNotFoundException_WhenUserIsNotOwner() {
+        User user2 = new User();
+        user2.setId(2L);
+        item.setOwner(user2);
+
+        when(jpaItemRepository.findById(1L)).thenReturn(Optional.of(item));
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            itemService.updateItem(1L, 1L, itemDtoUpdate);
+        });
+        assertEquals("Попытка обновления вещи другого пользователя", exception.getMessage());
+    }
+
 
     @Test
     void updateItem_ShouldThrowNotFoundException_WhenItemNotFound() {
