@@ -1,18 +1,11 @@
-package ru.practicum.shareit.request;//package ru.practicum.shareit.user;
-
-import jakarta.validation.Valid;
+package ru.practicum.shareit.request;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.request.RequestClient;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.service.UserService;
-
-import java.util.List;
 
 /**
  * TODO Sprint add-item-requests.
