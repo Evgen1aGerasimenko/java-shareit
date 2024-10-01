@@ -83,9 +83,8 @@ public class BookingServiceImpl implements BookingService {
         switch (state) {
             case ALL -> bookings = bookingRepository.findAllBookingsByBooker_IdOrderByStartDesc(userId);
             case CURRENT -> bookings = bookingRepository.findAllBookingsByBooker_IdAndStatus(userId, Status.APPROVED);
-            case PAST ->
-                    bookings = bookingRepository.findAllBookingsByBooker_IdAndEndIsBeforeOrderByStartDesc(userId,
-                            LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+            case PAST -> bookings = bookingRepository.findAllBookingsByBooker_IdAndEndIsBeforeOrderByStartDesc(userId,
+                    LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
             case FUTURE ->
                     bookings = bookingRepository.findAllBookingsByBooker_IdAndStartIsAfterOrderByStartDesc(userId,
                             LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
@@ -107,9 +106,8 @@ public class BookingServiceImpl implements BookingService {
         switch (state) {
             case ALL -> bookings = bookingRepository.findAllBookingsByItemOwnerOrderByStartDesc(userId);
             case CURRENT -> bookings = bookingRepository.findAllBookingsByItemOwnerAndStatus(userId, Status.APPROVED);
-            case PAST ->
-                    bookings = bookingRepository.findAllBookingsByItemOwnerAndEndIsBeforeOrderByStartDesc(userId,
-                            LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
+            case PAST -> bookings = bookingRepository.findAllBookingsByItemOwnerAndEndIsBeforeOrderByStartDesc(userId,
+                    LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
             case FUTURE ->
                     bookings = bookingRepository.findAllBookingsByItemOwnerAndStartIsAfterOrderByStartDesc(userId,
                             LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
