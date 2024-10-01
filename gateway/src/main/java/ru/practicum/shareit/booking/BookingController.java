@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
-import ru.practicum.shareit.booking.dto.BookingState;
 
 
 @Controller
@@ -23,7 +22,7 @@ public class BookingController {
     @GetMapping
     public ResponseEntity<Object> getBookings(@RequestHeader("X-Sharer-User-Id") long userId,
                                               @RequestParam(name = "state", defaultValue = "all") String stateParam) {
-        BookingState state = BookingState.from(stateParam)
+        State state = State.from(stateParam)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
         log.info("Get booking with state {}, userId={}", stateParam, userId);
         return bookingClient.getBookings(userId, state);
@@ -52,7 +51,7 @@ public class BookingController {
 
     @GetMapping("/owner")
     public ResponseEntity<Object> getAllBookingsByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                        @RequestParam(required = false, defaultValue = "ALL") BookingState state) {
+                                                        @RequestParam(required = false, defaultValue = "ALL") State state) {
         return bookingClient.getAllBookingsByOwner(userId, state);
     }
 }

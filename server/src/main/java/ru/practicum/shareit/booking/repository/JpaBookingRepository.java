@@ -12,15 +12,20 @@ import java.util.List;
 public interface JpaBookingRepository extends JpaRepository<Booking, Long> {
 
 
-    List<Booking> findAllBookingsByBooker_IdOrderByStartDesc(Long userId);
+    @Query("SELECT b FROM Booking b WHERE b.booker.id = :userId ORDER BY b.start DESC")
+    List<Booking> findAllBookingsByBooker_IdOrderByStartDesc(@Param("userId") Long userId);
 
-    List<Booking> findAllBookingsByBooker_IdAndStatus(Long userId, Status status);
+    @Query("SELECT b FROM Booking b WHERE b.booker.id = :userId AND b.status = :status")
+    List<Booking> findAllBookingsByBooker_IdAndStatus(@Param("userId") Long userId, @Param("status") Status status);
 
-    List<Booking> findAllBookingsByBooker_IdAndEndIsBeforeOrderByStartDesc(Long userId, LocalDateTime now);
+    @Query("SELECT b FROM Booking b WHERE b.booker.id = :userId AND b.end < :now ORDER BY b.start DESC")
+    List<Booking> findAllBookingsByBooker_IdAndEndIsBeforeOrderByStartDesc(@Param("userId") Long userId, @Param("now") LocalDateTime now);
 
-    List<Booking> findAllBookingsByBooker_IdAndStartIsAfterOrderByStartDesc(Long userId, LocalDateTime now);
+    @Query("SELECT b FROM Booking b WHERE b.booker.id = :userId AND b.start > :now ORDER BY b.start DESC")
+    List<Booking> findAllBookingsByBooker_IdAndStartIsAfterOrderByStartDesc(@Param("userId") Long userId, @Param("now") LocalDateTime now);
 
-    List<Booking> findBookingsByBooker_IdAndStatus(Long userId, Status status);
+    @Query("SELECT b FROM Booking b WHERE b.booker.id = :userId AND b.status = :status")
+    List<Booking> findBookingsByBooker_IdAndStatus(@Param("userId") Long userId, @Param("status") Status status);
 
     @Query("SELECT b FROM Booking b " +
             "JOIN b.item i " +

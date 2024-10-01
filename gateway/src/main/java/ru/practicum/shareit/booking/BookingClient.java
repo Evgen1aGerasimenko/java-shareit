@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
-import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.client.BaseClient;
 
 @Service
@@ -28,7 +27,7 @@ public class BookingClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> getBookings(long userId, BookingState state) {
+    public ResponseEntity<Object> getBookings(long userId, State state) {
         Map<String, Object> parameters = Map.of(
                 "state", state.name()
         );
@@ -48,7 +47,7 @@ public class BookingClient extends BaseClient {
         return patch("/" + bookingId + "?approved={approved}", userId, parameters);
     }
 
-    public ResponseEntity<Object> getAllBookingsByOwner(Long userId, BookingState state) {
+    public ResponseEntity<Object> getAllBookingsByOwner(Long userId, State state) {
         Map<String, Object> parameters = Map.of(
                 "state", state.name()
         );
