@@ -1,58 +1,69 @@
 package ru.practicum.shareit.user;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import org.junit.jupiter.api.extension.ExtendWith;
+import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.JpaUserRepository;
 import ru.practicum.shareit.user.service.UserService;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.Assert.assertThrows;
+
 @SpringBootTest
-@AutoConfigureMockMvc
 @Transactional
-@ExtendWith(SpringExtension.class)
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 class UserServiceIntegrationTest {
+    private final UserService userService;
+    private final JpaUserRepository userRepository;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    private UserDto testUser;
+    private Long userId;
 
     @BeforeEach
     void setUp() {
-        testUser = new UserDto();
-        testUser.setName("Test User");
-        testUser.setEmail("test@example.com");
-        testUser = userService.createUser(testUser);
+        UserDto user = new UserDto();
+        user.setName("mike");
+        user.setEmail("mike@ya.ru");
+        user = userService.createUser(user);
+        userId = user.getId();
     }
 
     @Test
-    void getUserById_shouldReturnUser_whenUserExists() throws Exception {
-        mockMvc.perform(get("/users/{id}", testUser.getId()))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.id").value(testUser.getId()))
-                .andExpect(jsonPath("$.name").value(testUser.getName()))
-                .andExpect(jsonPath("$.email").value(testUser.getEmail()));
+    void updateUser_ShouldUpdateUser_WhenDataIsValid() {
+        UserDto updatedUser = new UserDto();
+        updatedUser.setName("mike_updated");
+        updatedUser.setEmail("mike_updated@ya.ru");
+
+        UserDto result = userService.updateUser(userId, updatedUser);
+
+        assertThat(result.getId()).isEqualTo(userId);
+        assertThat(result.getName()).isEqualTo("mike_updated");
+        assertThat(result.getEmail()).isEqualTo("mike_updated@ya.ru");
+
+        User userFromDb = userRepository.getById(userId);
+        assertThat(userFromDb.getName()).isEqualTo("mike_updated");
+        assertThat(userFromDb.getEmail()).isEqualTo("mike_updated@ya.ru");
     }
 
     @Test
-    void getUserById_shouldReturnNotFound_whenUserDoesNotExist() throws Exception {
-        mockMvc.perform(get("/users/{id}", 999L))
-                .andExpect(status().isNotFound());
+    void updateUser_ShouldThrowConflictException_WhenEmailIsAlreadyExists() {
+        UserDto anotherUser = new UserDto();
+        anotherUser.setName("john");
+        anotherUser.setEmail("mike_updated@ya.ru");
+        userService.createUser(anotherUser);
+
+        UserDto updatedUser = new UserDto();
+        updatedUser.setEmail("mike_updated@ya.ru");
+
+        ConflictException exception = assertThrows(ConflictException.class, () -> {
+            userService.updateUser(userId, updatedUser);
+        });
+
+        assertThat(exception.getMessage()).isEqualTo("Существующий емайл");
     }
 }
